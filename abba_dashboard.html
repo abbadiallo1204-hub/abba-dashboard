@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abba's Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f8f6;color:#1a1a1a;padding:1.5rem;min-height:100vh}
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .dash{max-width:720px;margin:0 auto}
+  .hero{background:#fff;border:1px solid #e8e6e0;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .avatar{width:56px;height:56px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:#3C3489;flex-shrink:0;overflow:hidden;cursor:pointer;position:relative}
+  .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);border-radius:50%;opacity:0;transition:.15s;display:flex;align-items:center;justify-content:center}
+  .avatar:hover .avatar-overlay{opacity:1}
+  .hero-text h1{font-size:19px;font-weight:600}
+  .hero-text p{font-size:13px;color:#888;margin-top:2px}
+  .quote-pill{margin-left:auto;background:#EEEDFE;border:1px solid #AFA9EC;border-radius:12px;padding:.6rem 1rem;max-width:240px;font-size:12px;color:#3C3489;font-style:italic;line-height:1.5;cursor:pointer}
+  .quote-pill span{display:block;font-size:10px;color:#534AB7;margin-top:4px;font-style:normal}
+  .tabs{display:flex;gap:2px;border-bottom:1px solid #e8e6e0;margin-bottom:14px;overflow-x:auto}
+  .tab{font-size:13px;padding:7px 13px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:inherit}
+  .tab.on{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+  .tab:hover{color:#1a1a1a}
+  .page{display:none}.page.on{display:block}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+  .card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:1rem 1.25rem}
+  .sm-card{background:#f4f3ef;border-radius:10px;padding:.75rem 1rem}
+  .sec{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin:1rem 0 .5rem}
+  .row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0ede8}
+  .row:last-child{border-bottom:none}
+  .bar-track{background:#f0ede8;border-radius:99px;height:6px;flex:1;overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px;transition:.3s}
+  .check{width:16px;height:16px;border-radius:4px;border:1.5px solid #ccc;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.1s}
+  .check.on{background:#7F77DD;border-color:#7F77DD}
+  .check.on::after{content:'';width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
+  .badge{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:500;white-space:nowrap}
+  .b-p{background:#EEEDFE;color:#3C3489}
+  .b-g{background:#E1F5EE;color:#085041}
+  .b-a{background:#FAEEDA;color:#633806}
+  .b-b{background:#E6F1FB;color:#0C447C}
+  .b-r{background:#FCEBEB;color:#791F1F}
+  .b-gr{background:#f4f3ef;color:#5F5E5A;border:1px solid #e0ddd8}
+  .b-pk{background:#FBEAF0;color:#72243E}
+  .bingo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+  .bingo-cell{background:#f4f3ef;border:1px solid #e8e6e0;border-radius:8px;padding:8px 6px;text-align:center;font-size:11px;line-height:1.3;cursor:pointer;color:#666;transition:.15s;min-height:52px;display:flex;align-items:center;justify-content:center}
+  .bingo-cell:hover{background:#eceae4}
+  .bingo-cell.done{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-weight:500}
+  .bingo-cell.free{background:#1D9E75;border-color:#0F6E56;color:#fff;font-weight:500;cursor:default}
+  .harada{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+  .h-cell{background:#f4f3ef;border:1px solid #e8e6e0;border-radius:6px;padding:8px;font-size:11px;line-height:1.35;color:#555;cursor:pointer;transition:.15s;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center}
+  .h-cell.center{background:#D4537E;border-color:#993556;color:#fff;font-weight:600;cursor:default}
+  .h-cell.done{background:#E1F5EE;border-color:#5DCAA5;color:#085041}
+  .h-cell:not(.center):not(.done):hover{background:#eceae4}
+  .life-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+  .life-card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:.875rem 1rem}
+  .life-lbl{font-size:11px;color:#aaa;margin-bottom:4px}
+  .life-pct{font-size:20px;font-weight:600;margin-bottom:6px}
+  .img-zone{border:1.5px dashed #ccc;border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:.15s;position:relative;overflow:hidden;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .img-zone:hover{background:#f4f3ef}
+  .img-zone img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:8px}
+  .img-over{position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s}
+  .img-zone:hover .img-over{opacity:1}
+  .img-lbl{font-size:12px;color:#aaa;margin-top:6px}
+  .mood{width:30px;height:30px;border-radius:50%;background:#f4f3ef;border:1px solid #e0ddd8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.1s}
+  .mood.sel{border:2px solid #7F77DD;background:#EEEDFE}
+  input[type=range]{width:100%;accent-color:#7F77DD;cursor:pointer}
+  button.add-btn{width:100%;padding:10px;font-size:13px;color:#aaa;border:1.5px dashed #ccc;border-radius:10px;background:none;cursor:pointer;font-family:inherit;margin-top:10px}
+  button.add-btn:hover{background:#f4f3ef}
+  @media(max-width:480px){.g2,.g3{grid-template-columns:1fr}.quote-pill{display:none}}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Abba Diallo's personal life dashboard with bingo goals, Harada board, life-area trackers, and media projects.</h2>
+<input type="file" id="file-in" accept="image/*" style="display:none">
+<input type="file" id="avatar-in" accept="image/*" style="display:none">
+
+<div class="dash">
+  <div class="hero">
+    <div class="avatar" onclick="document.getElementById('avatar-in').click()" title="Change photo">
+      <span id="avatar-initials">AD</span>
+      <div class="avatar-overlay"><i class="ti ti-camera" style="color:#fff;font-size:16px"></i></div>
+    </div>
+    <div class="hero-text">
+      <h1>hey, Abba 👋</h1>
+      <p id="hero-sub">25 · MAPSS incoming · Chicago in <span id="days-hero">—</span> days</p>
+    </div>
+    <div class="quote-pill" id="quote-card" onclick="nextQuote()" title="Click for a new quote">
+      <div id="quote-txt"></div>
+      <span id="quote-src"></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="go('home')">Home</button>
+    <button class="tab" onclick="go('life')">Life areas</button>
+    <button class="tab" onclick="go('bingo')">Bingo</button>
+    <button class="tab" onclick="go('harada')">Harada</button>
+    <button class="tab" onclick="go('media')">Projects</button>
+    <button class="tab" onclick="go('vision')">Vision board</button>
+  </div>
+
+  <!-- HOME -->
+  <div class="page on" id="pg-home">
+    <div class="g3">
+      <div class="sm-card"><div style="font-size:11px;color:#aaa">Days to Chicago</div><div style="font-size:26px;font-weight:600;margin-top:2px" id="d-chicago">—</div></div>
+      <div class="sm-card"><div style="font-size:11px;color:#aaa">Bingo squares done</div><div style="font-size:26px;font-weight:600;margin-top:2px" id="d-bingo">1/25</div></div>
+      <div class="sm-card"><div style="font-size:11px;color:#aaa">Open applications</div><div style="font-size:26px;font-weight:600;margin-top:2px">3</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="sec">Today's mood</div>
+        <div style="display:flex;gap:6px;margin-top:4px" id="mood-row"></div>
+        <div style="font-size:12px;color:#aaa;margin-top:8px" id="mood-lbl">How are you feeling?</div>
+      </div>
+      <div class="card">
+        <div class="sec">Weekly wins</div>
+        <div id="wins-list"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">Life snapshot</div>
+      <div id="snapshot-bars"></div>
+    </div>
+    <div class="sec" style="margin-top:1rem">Urgent this week</div>
+    <div class="card">
+      <div class="row"><div class="check" onclick="tog(this)"></div><span style="font-size:14px;flex:1">Finalize CIR cover letter</span><span class="badge b-r">~Jul 15</span></div>
+      <div class="row"><div class="check" onclick="tog(this)"></div><span style="font-size:14px;flex:1">Email Maximilian Cuddy re: preceptor</span><span class="badge b-a">Soon</span></div>
+      <div class="row"><div class="check" onclick="tog(this)"></div><span style="font-size:14px;flex:1">Film this week's Currently episode</span><span class="badge b-p">Weekly</span></div>
+      <div class="row"><div class="check" onclick="tog(this)"></div><span style="font-size:14px;flex:1">GRE registration research</span><span class="badge b-b">July</span></div>
+      <div class="row"><div class="check" onclick="tog(this)"></div><span style="font-size:14px;flex:1">Review RDI certificate requirements</span><span class="badge b-gr">MAPSS</span></div>
+    </div>
+  </div>
+
+  <!-- LIFE AREAS -->
+  <div class="page" id="pg-life">
+    <p style="font-size:13px;color:#aaa;margin-bottom:12px">Drag the sliders to update your progress.</p>
+    <div class="life-grid" id="life-areas"></div>
+  </div>
+
+  <!-- BINGO -->
+  <div class="page" id="pg-bingo">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <p style="font-size:13px;color:#aaa">Jun–Dec 2026 · Click a square to mark done</p>
+      <span class="badge b-p" id="bingo-score">1 / 25</span>
+    </div>
+    <div class="bingo-grid" id="bingo-grid"></div>
+    <p style="margin-top:12px;font-size:12px;color:#aaa;text-align:center" id="bingo-msg"></p>
+  </div>
+
+  <!-- HARADA -->
+  <div class="page" id="pg-harada">
+    <p style="font-size:13px;color:#aaa;margin-bottom:10px">9-cell Harada board · Center = your main goal · Click cells to tick off.</p>
+    <div class="harada" id="harada-grid"></div>
+    <p style="font-size:12px;color:#aaa;margin-top:10px;text-align:center" id="harada-msg"></p>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="page" id="pg-media">
+    <div id="media-cards"></div>
+  </div>
+
+  <!-- VISION BOARD -->
+  <div class="page" id="pg-vision">
+    <p style="font-size:13px;color:#aaa;margin-bottom:12px">Your space — upload images, photos, anything that inspires you.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="vision-grid"></div>
+    <button class="add-btn" onclick="addVisionSlot()">+ add slot</button>
+  </div>
+</div>
+
+<script>
+const quotes=[
+  {t:"You are not behind. You are on your own path.",s:"— for Abba"},
+  {t:"Late bloomer is just another word for deep roots.",s:"— for Abba"},
+  {t:"The wound is where the light enters.",s:"— Rumi"},
+  {t:"You were not made for a quiet, easy life.",s:"— for Abba"},
+  {t:"Create the life you can't stop thinking about.",s:"— for Abba"},
+  {t:"You carry whole worlds inside you.",s:"— for Abba"},
+  {t:"Being seen is an act of courage.",s:"— for Abba"},
+  {t:"Your story was always worth telling.",s:"— for Abba"},
+];
+let qi=Math.floor(Math.random()*quotes.length);
+function nextQuote(){qi=(qi+1)%quotes.length;document.getElementById('quote-txt').textContent=quotes[qi].t;document.getElementById('quote-src').textContent=quotes[qi].s;}
+nextQuote();
+
+const chicago=new Date(2026,8,1);
+const now=new Date();
+const diff=Math.ceil((chicago-now)/(1000*60*60*24));
+document.getElementById('d-chicago').textContent=Math.max(0,diff);
+document.getElementById('days-hero').textContent=Math.max(0,diff);
+
+function go(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['home','life','bingo','harada','media','vision'];t.classList.toggle('on',ids[i]===id);});
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='pg-'+id));
+}
+function tog(el){
+  el.classList.toggle('on');
+  const span=el.nextElementSibling;
+  span.style.textDecoration=el.classList.contains('on')?'line-through':'none';
+  span.style.color=el.classList.contains('on')?'#aaa':'#1a1a1a';
+}
+
+const moods=[{e:'✦',l:'stellar'},{e:'☀',l:'good'},{e:'◦',l:'meh'},{e:'☁',l:'low'},{e:'◈',l:'chaotic'}];
+moods.forEach((m,i)=>{
+  const d=document.createElement('div');
+  d.className='mood';d.title=m.l;d.textContent=m.e;
+  d.onclick=()=>{document.querySelectorAll('.mood').forEach((x,j)=>x.classList.toggle('sel',j===i));document.getElementById('mood-lbl').textContent='Feeling '+m.l+' today';};
+  document.getElementById('mood-row').appendChild(d);
+});
+
+const wins=['First NYC trip — content captured','Currently series launched','Banking sorted (Schwab + Marcus)','Completed undergrad 3.82 GPA','Accepted to MAPSS UChicago'];
+wins.forEach(w=>{
+  const d=document.createElement('div');d.className='row';
+  d.innerHTML=`<i class="ti ti-star" style="font-size:14px;color:#1D9E75;flex-shrink:0"></i><span style="font-size:13px">${w}</span>`;
+  document.getElementById('wins-list').appendChild(d);
+});
+
+const lifeAreas=[
+  {label:'Academic',icon:'ti-school',color:'#7F77DD',pct:55},
+  {label:'Creative work',icon:'ti-device-tv',color:'#D4537E',pct:70},
+  {label:'Career',icon:'ti-briefcase',color:'#378ADD',pct:45},
+  {label:'Finance',icon:'ti-coin',color:'#1D9E75',pct:60},
+  {label:'Body and health',icon:'ti-run',color:'#BA7517',pct:30},
+  {label:'Love and Jabari',icon:'ti-heart',color:'#E24B4A',pct:80},
+  {label:'Family and roots',icon:'ti-world',color:'#534AB7',pct:65},
+  {label:'Spirit and self',icon:'ti-sparkles',color:'#D85A30',pct:50},
+];
+const snapBars=document.getElementById('snapshot-bars');
+lifeAreas.forEach((a,idx)=>{
+  const d=document.createElement('div');d.className='row';
+  d.innerHTML=`<i class="ti ${a.icon}" style="font-size:16px;color:${a.color};flex-shrink:0"></i><span style="font-size:13px;width:110px;flex-shrink:0">${a.label}</span><div class="bar-track"><div class="bar-fill" style="width:${a.pct}%;background:${a.color}" id="sb-${idx}"></div></div><span style="font-size:13px;font-weight:500;width:34px;text-align:right;flex-shrink:0" id="sp-${idx}">${a.pct}%</span>`;
+  snapBars.appendChild(d);
+});
+const lifeGrid=document.getElementById('life-areas');
+lifeAreas.forEach((a,idx)=>{
+  const c=document.createElement('div');c.className='life-card';
+  c.innerHTML=`<div style="font-size:18px;color:${a.color};margin-bottom:6px"><i class="ti ${a.icon}"></i></div><div class="life-lbl">${a.label}</div><div class="life-pct" id="lp-${idx}">${a.pct}%</div><div class="bar-track" style="margin-bottom:8px"><div class="bar-fill" style="width:${a.pct}%;background:${a.color}" id="lb-${idx}"></div></div><input type="range" min="0" max="100" step="1" value="${a.pct}" oninput="updateLife(${idx},this.value,'${a.color}')">`;
+  lifeGrid.appendChild(c);
+});
+function updateLife(i,v,color){
+  document.getElementById('lp-'+i).textContent=v+'%';
+  document.getElementById('lb-'+i).style.width=v+'%';
+  const sb=document.getElementById('sb-'+i);if(sb){sb.style.width=v+'%';}
+  const sp=document.getElementById('sp-'+i);if(sp){sp.textContent=v+'%';}
+}
+
+const bingoCells=['GRE prep','Secure TA role','Start locs','Run 3x/wk','Currently live','Meet Cuddy','Chicago move','RDI cert','Save $500','Read 5 books','Film ep 2','FREE','Jabari trip','Podcast ep','French daily','Thesis draft','I-House win','Networking event','Journal 30d','Cook weekly','Archive post','TikTok 1k','Submit GRE','Finish doc','Celebrate 25'];
+let bingoState=bingoCells.map((_,i)=>i===11);
+const bingoGrid=document.getElementById('bingo-grid');
+function renderBingo(){
+  bingoGrid.innerHTML='';
+  const done=bingoState.filter(Boolean).length;
+  bingoCells.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='bingo-cell'+(i===11?' free':bingoState[i]?' done':'');
+    d.textContent=c;
+    if(i!==11)d.onclick=()=>{bingoState[i]=!bingoState[i];renderBingo();};
+    bingoGrid.appendChild(d);
+  });
+  document.getElementById('bingo-score').textContent=done+' / 25';
+  document.getElementById('d-bingo').textContent=done+'/25';
+  const pct=done/25;
+  document.getElementById('bingo-msg').textContent=pct===0?'Click a square to mark it done':pct<.3?'Keep going, Abba!':pct<.5?'You\'re doing amazing!':pct<.75?'Halfway there!':pct<1?'So close!':'BINGO! You did it all!';
+}
+renderBingo();
+
+const haradaCells=['Secure TA / campus job','Master GRE vocab','Email Cuddy now','Publish Currently weekly','Thrive at MAPSS','Develop thesis framework','Run 3x per week','Start locs by Dec','Launch Uncertain Ground'];
+const haradaDone=new Array(9).fill(false);
+function renderHarada(){
+  const g=document.getElementById('harada-grid');g.innerHTML='';
+  haradaCells.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='h-cell'+(i===4?' center':haradaDone[i]?' done':'');
+    d.textContent=c;
+    if(i!==4)d.onclick=()=>{haradaDone[i]=!haradaDone[i];renderHarada();};
+    g.appendChild(d);
+  });
+  const done=haradaDone.filter(Boolean).length;
+  document.getElementById('harada-msg').textContent=done===0?'Tap any surrounding cell to mark it done':done===8?'All 8 paths clear — you\'re ready for Chicago.':done+'/8 paths to your goal checked off';
+}
+renderHarada();
+
+const mediaProjects=[
+  {name:'Currently',sub:'Weekly TikTok · media recs',badge:'b-g',status:'Active',color:'#1D9E75',pct:40,detail:'Building weekly cadence, NYC episode in queue'},
+  {name:'Uncertain Ground',sub:'Video essay series',badge:'b-a',status:'In edit',color:'#BA7517',pct:55,detail:'NYC Juneteenth footage shot Jun 15–19 · DJI Osmo Pocket 3'},
+  {name:'The Ongoing Record',sub:'Bilingual archive · African womanhood (EN/FR)',badge:'b-p',status:'Ongoing',color:'#7F77DD',pct:65,detail:'Companion to The Women in My Life documentary'},
+  {name:'Office Hours with Abba Diallo',sub:'Podcast',badge:'b-b',status:'Planning',color:'#378ADD',pct:20,detail:'Format and guest list in development'},
+];
+const mc=document.getElementById('media-cards');
+mediaProjects.forEach(p=>{
+  const d=document.createElement('div');
+  d.style.cssText='background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px';
+  d.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:15px;font-weight:600">${p.name}</div><span class="badge ${p.badge}">${p.status}</span></div><div style="font-size:12px;color:#aaa;margin-bottom:8px">${p.sub}</div><div style="font-size:12px;color:#666;margin-bottom:10px">${p.detail}</div><div style="display:flex;align-items:center;gap:10px"><div class="bar-track"><div class="bar-fill" style="width:${p.pct}%;background:${p.color}"></div></div><span style="font-size:13px;font-weight:500;color:${p.color};flex-shrink:0">${p.pct}%</span></div>`;
+  mc.appendChild(d);
+});
+
+const visionSlots=[{label:'Chicago skyline'},{label:'Thesis vibes'},{label:'Jabari + me'},{label:'Afrofuturism inspo'},{label:'My locs goals'},{label:'West Africa roots'}];
+let activeSlot=null;
+const vg=document.getElementById('vision-grid');
+function renderVision(){
+  vg.innerHTML='';
+  visionSlots.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='img-zone';
+    if(s.img){
+      d.innerHTML=`<img src="${s.img}" alt="${s.label}"><div class="img-over"><i class="ti ti-pencil" style="color:#fff;font-size:18px"></i></div>`;
+    } else {
+      d.innerHTML=`<i class="ti ti-photo-plus" style="font-size:22px;color:#ccc"></i><div class="img-lbl">${s.label}</div>`;
+    }
+    d.onclick=()=>{activeSlot=i;document.getElementById('file-in').click();};
+    vg.appendChild(d);
+  });
+}
+renderVision();
+function addVisionSlot(){visionSlots.push({label:'Add photo'});renderVision();}
+document.getElementById('file-in').onchange=function(){
+  if(!this.files[0]||activeSlot===null)return;
+  const r=new FileReader();r.onload=e=>{visionSlots[activeSlot].img=e.target.result;renderVision();};r.readAsDataURL(this.files[0]);this.value='';
+};
+document.getElementById('avatar-in').onchange=function(){
+  if(!this.files[0])return;
+  const r=new FileReader();r.onload=e=>{document.getElementById('avatar-initials').innerHTML=`<img src="${e.target.result}" alt="Abba" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;};r.readAsDataURL(this.files[0]);this.value='';
+};
+</script>
+</body>
+</html>
